@@ -1,8 +1,9 @@
 package net.chaimae.billingservice.web;
 
 import net.chaimae.billingservice.entities.Bill;
-import net.chaimae.billingservice.feign.CustomerRestClient;
-import net.chaimae.billingservice.feign.ProductRestClient;
+
+import net.chaimae.billingservice.feign.CustomerServiceRestClient;
+import net.chaimae.billingservice.feign.InventoryServiceRestClient;
 import net.chaimae.billingservice.repository.BillRepository;
 import net.chaimae.billingservice.repository.ProductItemRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,14 +19,14 @@ public class BillRestController {
     private ProductItemRepository productItemRepository;
 
     @Autowired
-    private CustomerRestClient customerRestClient;
+    private CustomerServiceRestClient customerRestClient;
 
     @Autowired
-    private ProductRestClient productRestClient;
+    private InventoryServiceRestClient productRestClient;
     @GetMapping(path = "/bills/{id}")
     public Bill getBill(@PathVariable Long id){
         Bill bill = billRepository.findById(id).get();
-        bill.setCustomer(customerRestClient.getCustomerById(bill.getCustomerId()));
+        bill.setCustomer(customerRestClient.findCustomerById(bill.getCustomerId()));
         bill.getProductItems().forEach(productItem -> {
             productItem.setProduct(productRestClient.getProductById(productItem.getProductId()));
         });
